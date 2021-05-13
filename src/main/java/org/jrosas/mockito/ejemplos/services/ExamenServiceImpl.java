@@ -13,19 +13,10 @@ public class ExamenServiceImpl implements IExamenService  {
         this.examenRepository = examenRepository;
     }
 
-    public Examen findByName(String nombre) {
+    public Optional <Examen> findByName(String nombre) {
         //Los Opcional hay que agarrarlos con un metodo get
-       Optional<Examen> examenOptional = examenRepository.findAll().stream()
+       return examenRepository.findAll().stream()
                .filter(n-> n.getNombre().equals(nombre))
-               .findFirst();
-       Examen examen = null;
-       if (examenOptional.isPresent()){
-           examen = examenOptional.get();
-           return examen;
-       }
-
-       return examen;
-
-
+               .findFirst(); 
     }
 }
