@@ -9,20 +9,34 @@ import java.util.Optional;
 
 import org.jrosas.mockito.ejemplos.models.Examen;
 import org.jrosas.mockito.ejemplos.repositories.IExamenRepository;
+import org.jrosas.mockito.ejemplos.repositories.IPreguntasRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.*; //De esta forma no necesito poner la clase antes del metodo estatico
 
 class ExamenServiceImplTest {
+	IExamenRepository repository;
+	IExamenService service;
+	
+	IPreguntasRepository preguntasRepository;
+	
+	@BeforeEach
+	void setUp() {
+		//Mockito provides a mock implementation of IExamenRepository
+				//It will never invoke the real implementation
+		 repository = Mockito.mock(IExamenRepository.class);
+		 preguntasRepository = Mockito.mock(IPreguntasRepository.class);
+		 //Pass dependencies by constructor
+		 service = new ExamenServiceImpl(repository, preguntasRepository);
+		
+		 
+	}
+	
 	
 	@Test
 	void findExamenByNombre() {
-		//Mockito provides a mock implementation of IExamenRepository
-		//It will never invoke the real implementation
-		IExamenRepository repository = Mockito.mock(IExamenRepository.class);
-		IExamenService service = new ExamenServiceImpl(repository);
-		List <Examen> datos  = Arrays.asList(new Examen(5L,"Matematicas"), new Examen(6L, "Lenguajes"), new Examen(7L,"Ciencias") );
-		Mockito.when (repository.findAll()).thenReturn(datos);
+		Mockito.when (repository.findAll()).thenReturn(Datos.EXAMENES);
 		Optional <Examen> examen = service.findByName("Ciencias");
 		assertTrue(examen.isPresent());
 		assertEquals(7, examen.get().getId());
@@ -31,14 +45,22 @@ class ExamenServiceImplTest {
 	
 	@Test
 	void findExamenByNombreListaVacia() {
-		//Mockito provides a mock implementation of IExamenRepository
-		//It will never invoke the real implementation
-		IExamenRepository repository = Mockito.mock(IExamenRepository.class);
-		IExamenService service = new ExamenServiceImpl(repository);
 		List <Examen> datos  = Collections.emptyList();
 		Mockito.when (repository.findAll()).thenReturn(datos);
 		Optional <Examen> examen = service.findByName("Ciencias");
 		assertFalse(examen.isPresent());
+	}
+	
+	@Test
+	void findPreguntasByExam() {
+		//Cuando invoques los metodos regresas esos datos de prueba
+		when(repository.findAll()).thenReturn(Datos.EXAMENES);
+		//El 6L se puede sustituir con anyLong
+		when(preguntasRepository.findByIdExam(6L)).thenReturn(Datos.PREGUNTAS);
+		//Aqui se invocan los metodos
+		Examen examen = service.findExamenByNombreForPreguntas("Lenguajes");
+		System.out.println("Nombre examen " + examen.getNombre());
+		 assertEquals(3, examen.getPreguntas().size());
 	}
 
 }
