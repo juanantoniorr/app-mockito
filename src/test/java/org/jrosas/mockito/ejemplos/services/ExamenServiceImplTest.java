@@ -62,5 +62,34 @@ class ExamenServiceImplTest {
 		System.out.println("Nombre examen " + examen.getNombre());
 		 assertEquals(3, examen.getPreguntas().size());
 	}
+	
+	@Test
+	void findPreguntasByExamVerify() {
+		//Cuando invoques los metodos regresas esos datos de prueba
+		when(repository.findAll()).thenReturn(Datos.EXAMENES);
+		//El 6L se puede sustituir con anyLong
+		when(preguntasRepository.findByIdExam(6L)).thenReturn(Datos.PREGUNTAS);
+		//Aqui se invocan los metodos
+		Examen examen = service.findExamenByNombreForPreguntas("Lenguajes");
+		// assertEquals(3, examen.getPreguntas().size());
+		 verify(repository).findAll();
+		 //Verifica si el metodo se uso
+		 verify(preguntasRepository).findByIdExam(6L);
+	}
+	
+	@Test
+	void findPreguntasByExamVerifyListaVacia() {
+		//Cuando invoques los metodos regresas esos datos de prueba
+		when(repository.findAll()).thenReturn(Datos.EXAMENES);
+		//El 6L se puede sustituir con anyLong
+		when(preguntasRepository.findByIdExam(6L)).thenReturn(Datos.PREGUNTAS);
+		//Aqui se invocan los metodos
+		Examen examen = service.findExamenByNombreForPreguntas("Prueba");
+		assertNull(examen);
+		 verify(repository).findAll();
+		 //Verifica si el metodo se uso
+		 verify(preguntasRepository).findByIdExam(6L);
+	}
+
 
 }
