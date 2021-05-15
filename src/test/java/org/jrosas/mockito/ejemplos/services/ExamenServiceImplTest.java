@@ -12,13 +12,16 @@ import org.jrosas.mockito.ejemplos.repositories.IExamenRepository;
 import org.jrosas.mockito.ejemplos.repositories.IPreguntasRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.*; //De esta forma no necesito poner la clase antes del metodo estatico
 
+@ExtendWith(MockitoExtension.class)
 class ExamenServiceImplTest {
 	@Mock
 	IExamenRepository repository;
@@ -27,22 +30,6 @@ class ExamenServiceImplTest {
 	
 	@InjectMocks //Inyecta los @Mock a la clase implementadora
 	ExamenServiceImpl service;
-	
-	
-	@BeforeEach
-	void setUp() {
-		//Inicia los mocks antes de cada metodo
-		MockitoAnnotations.openMocks(this);
-		//Mockito provides a mock implementation of IExamenRepository
-				//It will never invoke the real implementation
-		// repository = Mockito.mock(IExamenRepository.class);
-		 //preguntasRepository = Mockito.mock(IPreguntasRepository.class);
-		 //Pass dependencies by constructor
-		 //service = new ExamenServiceImpl(repository, preguntasRepository);
-		
-		 
-	}
-	
 	
 	@Test
 	void findExamenByNombre() {
