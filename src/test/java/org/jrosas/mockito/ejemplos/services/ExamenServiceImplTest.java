@@ -100,6 +100,4 @@ class ExamenServiceImplTest {
 		verify(preguntasRepository).saveSomeQuestions(any());
 		
 	}
-
-
 }

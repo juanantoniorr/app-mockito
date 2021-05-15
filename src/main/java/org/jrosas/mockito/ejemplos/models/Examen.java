@@ -2,40 +2,20 @@ package org.jrosas.mockito.ejemplos.models;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
+
 
 public class Examen {
-    private Long id;
-    private String nombre;
-    private List <String> preguntas;
+   @NonNull private @Getter @Setter Long id;
+    private @Getter @Setter String nombre;
+    private @Getter @Setter List <String> preguntas;
 
 
     public Examen(Long id, String nombre) {
         this.id = id;
         this.nombre = nombre;
         preguntas = new ArrayList<String>();
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public List<String> getPreguntas() {
-        return preguntas;
-    }
-
-    public void setPreguntas(List<String> preguntas) {
-        this.preguntas = preguntas;
     }
 }
