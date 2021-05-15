@@ -10,13 +10,11 @@ import java.util.Optional;
 import org.jrosas.mockito.ejemplos.models.Examen;
 import org.jrosas.mockito.ejemplos.repositories.IExamenRepository;
 import org.jrosas.mockito.ejemplos.repositories.IPreguntasRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.*; //De esta forma no necesito poner la clase antes del metodo estatico
@@ -86,6 +84,21 @@ class ExamenServiceImplTest {
 		 verify(repository).findAll();
 		 //Verifica si el metodo se uso
 		 verify(preguntasRepository).findByIdExam(6L);
+	}
+	
+	@Test
+	void saveExamTest() {
+		//Esto para que pase por el metodo saveSomeQuestions
+		Examen newExamen = Datos.EXAMENES.get(0);
+		newExamen.setPreguntas(Datos.PREGUNTAS);
+		//Cuando pase cualquier examen retornas el primero de la lista de datos
+		when (repository.save(any(Examen.class))).thenReturn(Datos.EXAMENES.get(0));
+		Examen examen = service.save(newExamen);
+		assertNotNull(examen);
+		assertEquals(5L, examen.getId());
+		verify(repository).save(examen);
+		verify(preguntasRepository).saveSomeQuestions(any());
+		
 	}
 
 

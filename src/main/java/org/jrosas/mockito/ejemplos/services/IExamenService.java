@@ -7,4 +7,5 @@ import org.jrosas.mockito.ejemplos.models.Examen;
 public interface IExamenService {
     Optional <Examen> findByName (String nombre);
     Examen findExamenByNombreForPreguntas(String nombre);
+    Examen save(Examen examen);
 }
