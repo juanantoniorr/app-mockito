@@ -100,4 +100,20 @@ class ExamenServiceImplTest {
 		verify(preguntasRepository).saveSomeQuestions(any());
 		
 	}
+	
+	@Test
+	void testManejoException() {
+		//Regreso lista de examenes con id nulo
+		when(repository.findAll()).thenReturn(Datos.EXAMENES_NULL_ID);
+		//Para cualquier argumento que sea nulo lanza el illegal argument
+		when (preguntasRepository.findByIdExam(isNull())).thenThrow(IllegalArgumentException.class);
+		assertThrows(IllegalArgumentException.class, () -> {
+			service.findExamenByNombreForPreguntas("Ciencias");
+		});
+		//Verificamos que se invoquen los metodos
+		verify(repository).findAll();
+		verify(preguntasRepository).findByIdExam(isNull());
+		
+		
+	}
 }
