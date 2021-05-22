@@ -12,6 +12,8 @@ import org.jrosas.mockito.ejemplos.repositories.IExamenRepository;
 import org.jrosas.mockito.ejemplos.repositories.IPreguntasRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -28,6 +30,9 @@ class ExamenServiceImplTest {
 	
 	@InjectMocks //Inyecta los @Mock a la clase implementadora
 	ExamenServiceImpl service;
+	
+	@Captor
+	ArgumentCaptor<Long> captor;
 	
 	@Test
 	void findExamenByNombre() {
@@ -123,5 +128,19 @@ class ExamenServiceImplTest {
 		verify(repository).findAll();
 		//verify(preguntasRepository).findByIdExam(Mockito.argThat(arg -> arg.equals(7L)));
 		verify(preguntasRepository).findByIdExam(Mockito.argThat(new ArgMatcher()));
+	}
+	
+	@Test
+	void testArgumentCaptor() {
+		when(repository.findAll()).thenReturn(Datos.EXAMENES);
+		when (preguntasRepository.findByIdExam(anyLong())).thenReturn(Datos.PREGUNTAS);
+		service.findExamenByNombreForPreguntas("Ciencias");
+		//Captura el tipo de argumento que le estamos pasando
+		//Se reemplaza con una anotacion al principio de la clase
+		//ArgumentCaptor<Long> captor = ArgumentCaptor.forClass(Long.class);
+		verify(preguntasRepository).findByIdExam(captor.capture());
+		assertEquals(7L, captor.getValue());
+		
+		
 	}
 }
