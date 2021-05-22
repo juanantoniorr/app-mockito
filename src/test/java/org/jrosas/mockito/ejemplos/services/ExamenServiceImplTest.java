@@ -113,7 +113,15 @@ class ExamenServiceImplTest {
 		//Verificamos que se invoquen los metodos
 		verify(repository).findAll();
 		verify(preguntasRepository).findByIdExam(isNull());
-		
-		
+	}
+	
+	@Test
+	void testArgumentMatcher() {
+		when(repository.findAll()).thenReturn(Datos.EXAMENES);
+		when (preguntasRepository.findByIdExam(anyLong())).thenReturn(Datos.PREGUNTAS);
+		service.findExamenByNombreForPreguntas("Ciencias");
+		verify(repository).findAll();
+		//verify(preguntasRepository).findByIdExam(Mockito.argThat(arg -> arg.equals(7L)));
+		verify(preguntasRepository).findByIdExam(Mockito.argThat(new ArgMatcher()));
 	}
 }
