@@ -132,6 +132,7 @@ class ExamenServiceImplTest {
 	
 	@Test
 	void testArgumentCaptor() {
+		//When solo se usa cuando el metodo devuelve un valor
 		when(repository.findAll()).thenReturn(Datos.EXAMENES);
 		when (preguntasRepository.findByIdExam(anyLong())).thenReturn(Datos.PREGUNTAS);
 		service.findExamenByNombreForPreguntas("Ciencias");
@@ -143,4 +144,18 @@ class ExamenServiceImplTest {
 		
 		
 	}
+	
+	//Throw se usa cuando el metodo es void (no regresa nada) en vez del when
+	@Test 
+	void doThrow() {
+		//Creamos examen, seteamos preguntas, guardamos examen y esperamos excepcion
+		Examen examen = Datos.EXAMENES.get(0);
+		examen.setPreguntas(Datos.PREGUNTAS);
+		Mockito.doThrow(IllegalArgumentException.class).when(preguntasRepository).saveSomeQuestions(anyList());
+		assertThrows(IllegalArgumentException.class, () -> {
+			service.save(examen);
+		});
+	}
+	
+	
 }
