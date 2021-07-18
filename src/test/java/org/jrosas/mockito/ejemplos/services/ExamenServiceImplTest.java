@@ -157,5 +157,22 @@ class ExamenServiceImplTest {
 		});
 	}
 	
+	@Test
+	void testDoAnswer() {
+		
+		when(repository.findAll()).thenReturn(Datos.EXAMENES);
+		//when (preguntasRepository.findByIdExam(anyLong())).thenReturn(Datos.PREGUNTAS);
+		doAnswer(invocation -> {
+			Long id = invocation.getArgument(0);
+			return id ==5L? Datos.PREGUNTAS:null;
+			
+		}).when(preguntasRepository).findByIdExam(anyLong());
+		
+		Examen examen = service.findExamenByNombreForPreguntas("Matematicas");
+		
+		assertEquals(5L, examen.getId());
+		assertEquals("Matematicas", examen.getNombre());
+	}
+	
 	
 }
