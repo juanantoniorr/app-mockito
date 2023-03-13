@@ -1,4 +1,4 @@
-package org.jrosas.mockito.ejemplos.services;
+package org.jrosas.mockito.ejemplos;
 
 import java.util.Arrays;
 import java.util.List;

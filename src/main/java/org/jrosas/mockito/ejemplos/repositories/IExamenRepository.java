@@ -7,4 +7,5 @@ import java.util.List;
 public interface IExamenRepository {
     List<Examen> findAll();
     Examen save (Examen examen);
+    Examen findById(Long id);
 }

@@ -3,26 +3,30 @@ package org.jrosas.mockito.ejemplos.services;
 import static org.junit.jupiter.api.Assertions.*;
 
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.jrosas.mockito.ejemplos.Datos;
 import org.jrosas.mockito.ejemplos.models.Examen;
+import org.jrosas.mockito.ejemplos.repositories.ExamenRepoImpl;
 import org.jrosas.mockito.ejemplos.repositories.IExamenRepository;
 import org.jrosas.mockito.ejemplos.repositories.IPreguntasRepository;
+import org.jrosas.mockito.ejemplos.repositories.PreguntasRepoImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.*; //De esta forma no necesito poner la clase antes del metodo estatico
 
 @ExtendWith(MockitoExtension.class)
 class ExamenServiceImplTest {
+	//Concrete implementation
+	@Mock
+	ExamenRepoImpl examenRepo;
+	//abstract impl
 	@Mock
 	IExamenRepository repository;
 	@Mock
@@ -81,14 +85,10 @@ class ExamenServiceImplTest {
 	void findPreguntasByExamVerifyListaVacia() {
 		//Cuando invoques los metodos regresas esos datos de prueba
 		when(repository.findAll()).thenReturn(Datos.EXAMENES);
-		//El 6L se puede sustituir con anyLong
-		when(preguntasRepository.findByIdExam(6L)).thenReturn(Datos.PREGUNTAS);
 		//Aqui se invocan los metodos con un examen que no existe
 		Examen examen = service.findExamenByNombreForPreguntas("Prueba");
 		assertNull(examen);
 		 verify(repository).findAll();
-		 //Verifica si el metodo se uso
-		 verify(preguntasRepository).findByIdExam(6L);
 	}
 	
 	@Test
@@ -161,18 +161,81 @@ class ExamenServiceImplTest {
 	void testDoAnswer() {
 		
 		when(repository.findAll()).thenReturn(Datos.EXAMENES);
-		//when (preguntasRepository.findByIdExam(anyLong())).thenReturn(Datos.PREGUNTAS);
 		doAnswer(invocation -> {
 			Long id = invocation.getArgument(0);
 			return id ==5L? Datos.PREGUNTAS:null;
 			
-		}).when(preguntasRepository).findByIdExam(anyLong());
+		}).when(preguntasRepository).findByIdExam(anyLong()); //when pase esto se dispara el doAnswer
 		
 		Examen examen = service.findExamenByNombreForPreguntas("Matematicas");
 		
 		assertEquals(5L, examen.getId());
 		assertEquals("Matematicas", examen.getNombre());
 	}
+
+	//doCallRealMethod() manda a llamar al metodo real y no al mock3
+	//usamos clase concreta ExamenRepoImpl
+	@Test
+	void testDoCallRealMethod(){
+		//Mocking method will return only examen 0: Matematicas
+		when(examenRepo.findAll()).thenReturn(Arrays.asList(Datos.EXAMENES.get(0)));
+		//Calling actual method: actual method return Lenguajes 6L
+		doCallRealMethod().when(examenRepo).findById(anyLong());
+		List<Examen> list = examenRepo.findAll();
+		Examen examen = examenRepo.findById(anyLong());
+		//Mocking data
+		assertEquals(1,list.size());
+		assertEquals("Matematicas",list.get(0).getNombre());
+		//Not mock, current method class impl
+		assertEquals(6L, examen.getId());
+		assertEquals("Lenguajes", examen.getNombre());
+
+	}
+
+	/////SPY hibrido entre mock y objeto real, no usar mucho solo en metodos de terceros
+	//Spy va al metodo real y tu puedes especificar el metodo que quieres mockear.
+	///Mock 100% simulado (puede ser interfaz, damos implementacion falsa mock), spy need an impl because use actual methods
+
+	@Test
+	void testSpy(){
+
+		List<String> preguntas = Arrays.asList("Test");
+		IExamenRepository examenRepo = spy(ExamenRepoImpl.class);
+		IPreguntasRepository preguntasRepository = spy(PreguntasRepoImpl.class);
+		IExamenService examenService = new ExamenServiceImpl(examenRepo,preguntasRepository);
+		//We only mock this method, when call actual method and mock it is weird so we change it to doReturn
+		doReturn(preguntas).when(preguntasRepository).findByIdExam(anyLong());
+		//when(preguntasRepository.findByIdExam(anyLong())).thenReturn(preguntas);
+		Examen examen = examenService.findExamenByNombreForPreguntas("Matematicas");
+		assertEquals(5L, examen.getId());
+		assertEquals("Matematicas", examen.getNombre());
+		//real method return null -> preguntasRepository
+		//assertNull(examen.getPreguntas());
+
+		//Simulated spy
+		assertNotNull(examen.getPreguntas());
+		assertEquals(1,examen.getPreguntas().size());
+		assertTrue(examen.getPreguntas().contains("Test"));
+		verify(examenRepo).findAll();
+
+	}
+
+	@Test
+	void testOrderInvocation(){
+
+		when(repository.findAll()).thenReturn(Datos.EXAMENES);
+		service.findExamenByNombreForPreguntas("Matematicas");
+		service.findExamenByNombreForPreguntas("Lenguajes");
+		InOrder inOrder = inOrder(preguntasRepository);
+		//First we return matematicas and then Lenguajes
+		inOrder.verify(preguntasRepository).findByIdExam(5L);
+		inOrder.verify(preguntasRepository).findByIdExam(6L);
+
+
+	}
+
+
+
 	
 	
 }

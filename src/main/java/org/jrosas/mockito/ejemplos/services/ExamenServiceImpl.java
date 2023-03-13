@@ -1,5 +1,6 @@
 package org.jrosas.mockito.ejemplos.services;
 
+import org.jrosas.mockito.ejemplos.Datos;
 import org.jrosas.mockito.ejemplos.models.Examen;
 import org.jrosas.mockito.ejemplos.repositories.IExamenRepository;
 import org.jrosas.mockito.ejemplos.repositories.IPreguntasRepository;
@@ -32,7 +33,6 @@ public class ExamenServiceImpl implements IExamenService  {
 			examen = examenOptional.get();
 			System.out.println("Examen Id " + examen.getId());
 			List <String> preguntas = preguntasRepository.findByIdExam(examen.getId());
-			System.out.println("Lista preguntas " + preguntas.size());
 			examen.setPreguntas(preguntas);	
 		}
 	
